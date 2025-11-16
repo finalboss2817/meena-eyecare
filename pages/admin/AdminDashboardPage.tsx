@@ -8,7 +8,7 @@ interface AdminDashboardPageProps {
   onNavigate: (path: string) => void;
 }
 
-const StatCard: React.FC<{ title: string; value: number | string; icon: 'products' | 'tools' }> = ({ title, value, icon }) => (
+const StatCard: React.FC<{ title: string; value: number | string; icon: 'products' | 'education' }> = ({ title, value, icon }) => (
   <div className="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
     <div className="bg-secondary p-3 rounded-full">
       <Icon name={icon} className="h-8 w-8 text-primary" />
@@ -49,8 +49,8 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <StatCard title="Total Products" value={isLoading ? '...' : productCount} icon="products" />
-        <StatCard title="Total Categories" value={isLoading ? '...' : categoryCount} icon="tools" />
-        <StatCard title="Education Articles" value={isLoading ? '...' : educationCount} icon="tools" />
+        <StatCard title="Total Categories" value={isLoading ? '...' : categoryCount} icon="products" />
+        <StatCard title="Education Articles" value={isLoading ? '...' : educationCount} icon="education" />
       </div>
 
       {/* Quick Actions */}

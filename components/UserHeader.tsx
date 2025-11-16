@@ -39,9 +39,14 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ onNavigate, session, pro
   
   const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
-    await authService.signOut();
-    onNavigate('user/home');
-    setIsMenuOpen(false);
+    try {
+      await authService.signOut();
+      onNavigate('user/home');
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setIsMenuOpen(false);
+    }
   };
 
   const NavLink: React.FC<{path: string, label: string, isMobile?: boolean}> = ({ path, label, isMobile = false }) => (
@@ -94,6 +99,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ onNavigate, session, pro
               </>
             ) : (
               <>
+                <span className="text-xl text-gray-600">Hi, {profile?.full_name?.split(' ')[0] || 'User'}</span>
                 {profile?.role === 'admin' && <NavLink path="admin/dashboard" label="Admin Panel" isMobile />}
                 <a href="#logout" onClick={handleLogout} className="text-2xl font-bold text-dark hover:text-primary transition-colors">Logout</a>
               </>

@@ -10,7 +10,7 @@ interface HomePageProps {
   onNavigate: (path: string) => void;
 }
 
-const FeatureCard: React.FC<{title: string, description: string, icon: 'eye' | 'tools', onClick: () => void, buttonText: string}> = ({ title, description, icon, onClick, buttonText }) => (
+const FeatureCard: React.FC<{title: string, description: string, icon: 'eye' | 'education', onClick: () => void, buttonText: string}> = ({ title, description, icon, onClick, buttonText }) => (
     <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 flex flex-col text-center border-b-4 border-transparent hover:border-secondary">
         <div className="bg-secondary p-4 rounded-full mb-4 self-center">
             <Icon name={icon} className="w-10 h-10 text-primary"/>
@@ -67,7 +67,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
            <FeatureCard
                 title="Lens Education Hub"
                 description="Learn everything about lens technology, from ARC and Blue Cut to Progressive lenses, all in one place."
-                icon="tools"
+                icon="education"
                 onClick={() => onNavigate('user/education-hub')}
                 buttonText="Learn More"
            />

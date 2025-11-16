@@ -49,6 +49,7 @@ const App: React.FC = () => {
 
     fetchSessionAndProfile();
 
+    // FIX: authService.onAuthStateChange returns the subscription object directly.
     const subscription = authService.onAuthStateChange(async (_event, session) => {
       setSession(session);
       if (session) {
@@ -79,8 +80,13 @@ const App: React.FC = () => {
   }, [route, handleNavigate]);
 
   const handleLogout = async () => {
-    await authService.signOut();
-    handleNavigate('user/home');
+    try {
+        await authService.signOut();
+        // The onAuthStateChange listener will handle setting session and profile to null
+        handleNavigate('user/home');
+    } catch (error) {
+        console.error("Error during logout:", error);
+    }
   };
 
   const renderContent = () => {
@@ -89,7 +95,9 @@ const App: React.FC = () => {
     const [area, page, ...params] = route.split('/');
     
     if (session && session.user.phone && profile && !profile.full_name && route !== 'user/create-profile') {
+        // Force redirect if a phone user hasn't created a profile yet.
         handleNavigate('user/create-profile');
+        return <CreateProfilePage onProfileCreated={() => handleNavigate('user/home')} />;
     }
     if (route === 'user/create-profile') {
         return <CreateProfilePage onProfileCreated={() => handleNavigate('user/home')} />;

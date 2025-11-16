@@ -23,7 +23,7 @@ export const EducationHubPage: React.FC = () => {
     <div className="bg-gray-50 min-h-screen">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-            <Icon name="tools" className="w-20 h-20 mx-auto text-primary mb-4"/>
+            <Icon name="education" className="w-20 h-20 mx-auto text-primary mb-4"/>
             <h1 className="text-4xl md:text-5xl font-extrabold text-dark">Lens Education Hub</h1>
             <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
                 Understanding your lenses is the first step to better vision. Explore our guides to make an informed choice.
