@@ -1,0 +1,5 @@
+{
+  "name": "Meena Eyecare",
+  "description": "An optics web app prototype for Meena Eyecare, a venture by Meena Technologies. It includes an admin panel for product management and a user interface for browsing, purchasing, and using unique lens recommendation tools. All data is managed via local storage.",
+  "requestFramePermissions": []
+}
