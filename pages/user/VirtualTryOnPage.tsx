@@ -44,8 +44,9 @@ export const VirtualTryOnPage: React.FC<VirtualTryOnPageProps> = ({ productId, o
 
     if (removeBackground) {
         const img = new Image();
-        img.crossOrigin = "Anonymous";
+        img.crossOrigin = "Anonymous"; // Crucial for canvas manipulation of external images
         img.src = product.image_url;
+        
         img.onload = () => {
             const canvas = document.createElement('canvas');
             canvas.width = img.width;
@@ -57,20 +58,25 @@ export const VirtualTryOnPage: React.FC<VirtualTryOnPageProps> = ({ productId, o
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data;
             
-            // Iterate through pixels
+            // Iterate through pixels to remove white background
             for (let i = 0; i < data.length; i += 4) {
                 const r = data[i];
                 const g = data[i + 1];
                 const b = data[i + 2];
-                // If pixel is very light (near white), make it transparent
+                // Threshold for "white" or near-white
+                // Adjust these values to control sensitivity (0-255)
                 if (r > 240 && g > 240 && b > 240) {
-                    data[i + 3] = 0; // Set Alpha to 0
+                    data[i + 3] = 0; // Set Alpha to 0 (transparent)
                 }
             }
             
             ctx.putImageData(imageData, 0, 0);
             setProcessedFrameUrl(canvas.toDataURL());
         };
+        img.onerror = () => {
+            console.error("Could not load image for background removal (CORS?)");
+            setProcessedFrameUrl(product.image_url);
+        }
     } else {
         setProcessedFrameUrl(product.image_url);
     }
@@ -140,7 +146,7 @@ export const VirtualTryOnPage: React.FC<VirtualTryOnPageProps> = ({ productId, o
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 relative bg-gray-200 rounded-lg shadow-lg overflow-hidden select-none" 
+        <div className="lg:col-span-2 relative bg-gray-200 rounded-lg shadow-lg overflow-hidden select-none min-h-[400px]" 
           ref={containerRef}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -148,7 +154,7 @@ export const VirtualTryOnPage: React.FC<VirtualTryOnPageProps> = ({ productId, o
         >
           {tryOnState.userImage ? (
             <>
-              <img src={tryOnState.userImage} alt="User" className="w-full h-full object-cover pointer-events-none" />
+              <img src={tryOnState.userImage} alt="User" className="w-full h-full object-contain pointer-events-none" />
               {processedFrameUrl && (
                 <img 
                     src={processedFrameUrl} 
@@ -166,11 +172,11 @@ export const VirtualTryOnPage: React.FC<VirtualTryOnPageProps> = ({ productId, o
               )}
             </>
           ) : (
-            <div className="h-[500px] flex flex-col items-center justify-center text-center p-8">
+            <div className="h-full flex flex-col items-center justify-center text-center p-8">
                 <Icon name="user" className="w-24 h-24 text-gray-400 mb-4" />
                 <h2 className="text-2xl font-bold text-gray-700">Upload Your Photo</h2>
                 <p className="text-gray-500 mb-6">For the best results, use a well-lit, front-facing portrait.</p>
-                <label className="bg-primary text-white font-bold py-3 px-6 rounded-lg cursor-pointer hover:bg-primary/90 transition-colors">
+                <label className="bg-primary text-white font-bold py-3 px-6 rounded-lg cursor-pointer hover:bg-primary/90 transition-colors shadow-lg">
                     Choose File
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                 </label>
@@ -179,36 +185,38 @@ export const VirtualTryOnPage: React.FC<VirtualTryOnPageProps> = ({ productId, o
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-lg h-fit">
-          <h2 className="text-xl font-bold mb-4 border-b pb-3">Controls</h2>
+          <h2 className="text-xl font-bold mb-4 border-b pb-3">Adjustments</h2>
           <div className="space-y-6">
              
-             <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200">
-                <label className="flex items-center space-x-3 cursor-pointer">
+             <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                <label className="flex items-center space-x-3 cursor-pointer select-none">
                     <input 
                         type="checkbox" 
                         checked={removeBackground} 
                         onChange={(e) => setRemoveBackground(e.target.checked)}
-                        className="form-checkbox h-5 w-5 text-primary rounded focus:ring-primary" 
+                        className="form-checkbox h-5 w-5 text-primary rounded focus:ring-primary border-gray-300" 
                     />
-                    <span className="text-sm font-semibold text-gray-800">Remove Frame Background</span>
+                    <span className="font-bold text-gray-800">Remove White Background</span>
                 </label>
-                <p className="text-xs text-gray-600 mt-1 ml-8">Check this if the frame has a white box around it to make it transparent.</p>
+                <p className="text-xs text-gray-600 mt-2">Check this if the glasses image has a solid white box around it. This makes it transparent so it sits naturally on your face.</p>
              </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700">Resize Frame</label>
-                <input type="range" min="0.5" max="2.5" step="0.05" value={tryOnState.frameScale} onChange={e => setTryOnState(p => ({...p, frameScale: parseFloat(e.target.value)}))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2" />
+                <label className="block text-sm font-bold text-gray-700 mb-2">Size</label>
+                <input type="range" min="0.5" max="2.5" step="0.05" value={tryOnState.frameScale} onChange={e => setTryOnState(p => ({...p, frameScale: parseFloat(e.target.value)}))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary" />
             </div>
              <div>
-                <label className="block text-sm font-medium text-gray-700">Rotate Frame</label>
-                <div className="flex items-center space-x-4 mt-2">
-                    <button onClick={() => setTryOnState(p => ({...p, frameRotation: p.frameRotation - 5}))} className="btn-secondary w-full text-sm">Rotate Left</button>
-                    <button onClick={() => setTryOnState(p => ({...p, frameRotation: p.frameRotation + 5}))} className="btn-secondary w-full text-sm">Rotate Right</button>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Rotation</label>
+                <div className="flex items-center space-x-4">
+                    <button onClick={() => setTryOnState(p => ({...p, frameRotation: p.frameRotation - 5}))} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 rounded transition-colors">-5°</button>
+                    <button onClick={() => setTryOnState(p => ({...p, frameRotation: 0}))} className="px-4 text-xs text-gray-500 hover:text-primary">Reset</button>
+                    <button onClick={() => setTryOnState(p => ({...p, frameRotation: p.frameRotation + 5}))} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 rounded transition-colors">+5°</button>
                 </div>
             </div>
-             <div className="border-t pt-4">
-                 <button onClick={handleReset} className="w-full bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
-                    Reset & Change Photo
+             <div className="border-t pt-6 mt-4">
+                 <button onClick={handleReset} className="w-full flex items-center justify-center space-x-2 bg-red-50 text-red-600 font-semibold py-3 px-4 rounded-lg hover:bg-red-100 transition-colors">
+                    <Icon name="trash" className="w-5 h-5"/>
+                    <span>Reset All</span>
                 </button>
              </div>
           </div>

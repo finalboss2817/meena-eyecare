@@ -97,7 +97,10 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
 
   const handleAddToCart = () => {
     cartService.addToCart(product.id, quantity, prescription);
-    alert(`${quantity} x ${product.name} added to cart!`);
+    const message = prescription 
+        ? `${quantity} x ${product.name} with prescription added to cart!`
+        : `${quantity} x ${product.name} added to cart!`;
+    alert(message);
   };
 
   const handleToggleWishlist = () => {
@@ -141,13 +144,13 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
            <div className="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
              <h3 className="text-lg font-semibold mb-2 flex items-center">
                 <Icon name="education" className="w-5 h-5 mr-2 text-primary"/>
-                Upload Prescription
+                Upload Prescription (Optional)
              </h3>
              {!prescription ? (
                <div className="mt-2">
                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-100 hover:border-primary transition-all">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <svg className="w-8 h-8 mb-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        <Icon name="plus" className="w-8 h-8 mb-2 text-gray-500" />
                         <p className="mb-2 text-sm text-gray-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
                         <p className="text-xs text-gray-500">PNG, JPG or PDF (MAX. 5MB)</p>
                     </div>
@@ -156,12 +159,14 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
                  {uploadError && <p className="text-red-500 text-xs mt-2">{uploadError}</p>}
                </div>
              ) : (
-               <div className="flex items-center justify-between bg-white p-3 rounded border mt-2">
+               <div className="flex items-center justify-between bg-green-50 border border-green-200 p-3 rounded-lg mt-2">
                  <div className="flex items-center">
-                    <svg className="w-8 h-8 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span className="text-sm font-medium truncate max-w-[200px]">{prescription.fileName}</span>
+                    <div className="bg-green-100 p-2 rounded-full mr-3">
+                        <Icon name="education" className="w-5 h-5 text-green-600"/>
+                    </div>
+                    <span className="text-sm font-medium text-gray-700 truncate max-w-[200px]">{prescription.fileName}</span>
                  </div>
-                 <button onClick={removePrescription} className="text-red-500 hover:text-red-700">
+                 <button onClick={removePrescription} className="text-red-500 hover:text-red-700 bg-white p-2 rounded-full shadow-sm hover:bg-red-50 transition-colors">
                     <Icon name="trash" className="w-5 h-5"/>
                  </button>
                </div>

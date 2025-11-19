@@ -59,9 +59,12 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ onNavigate, session, pro
     </a>
   );
   
+  // Fallback name logic
+  const displayName = profile?.full_name?.split(' ')[0] || session?.user?.user_metadata?.full_name?.split(' ')[0] || 'User';
+  
   const authLinks = session ? (
     <div className="flex items-center space-x-4">
-        <span className="hidden sm:inline text-sm text-gray-600">Hi, {profile?.full_name?.split(' ')[0] || 'User'}</span>
+        <span className="hidden sm:inline text-sm text-gray-600">Hi, {displayName}</span>
         {profile?.role === 'admin' && (
            <a href="#admin/dashboard" onClick={(e) => handleNavClick(e, 'admin/dashboard')} className="hidden sm:inline bg-secondary text-primary text-sm font-bold px-3 py-1 rounded-md hover:bg-secondary/90">
              Admin Panel
@@ -99,7 +102,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ onNavigate, session, pro
               </>
             ) : (
               <>
-                <span className="text-xl text-gray-600">Hi, {profile?.full_name?.split(' ')[0] || 'User'}</span>
+                <span className="text-xl text-gray-600">Hi, {displayName}</span>
                 {profile?.role === 'admin' && <NavLink path="admin/dashboard" label="Admin Panel" isMobile />}
                 <a href="#logout" onClick={handleLogout} className="text-2xl font-bold text-dark hover:text-primary transition-colors">Logout</a>
               </>

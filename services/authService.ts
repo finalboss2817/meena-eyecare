@@ -1,3 +1,4 @@
+
 import { supabaseClient } from './supabase';
 import type { Profile, SignUpData } from '../types';
 
@@ -79,7 +80,9 @@ export const authService = {
       .single();
 
     if (error) {
-      console.error('Error fetching user profile:', error);
+      // If the profile doesn't exist (e.g. trigger failed or not set up), we don't want to crash the app.
+      // We just return null, and the UI should fallback to session user metadata.
+      console.warn('Could not fetch user profile from DB (it might not exist yet):', error.message);
       return null;
     }
 
