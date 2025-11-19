@@ -21,9 +21,15 @@ export interface Product {
   lens_type?: LensType;
 }
 
+export interface PrescriptionData {
+  fileName: string;
+  data: string; // Base64 string
+}
+
 export interface CartItem {
   productId: string;
   quantity: number;
+  prescription?: PrescriptionData;
 }
 
 export interface WishlistItem {

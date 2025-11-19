@@ -19,8 +19,8 @@ export const Footer: React.FC = () => {
           </div>
           <div>
             <h4 className="font-semibold text-lg text-white mb-2">Contact Us</h4>
-            <p className="text-gray-400"> Linking Rd, Bandra West, Mumbai, Maharashtra 400050</p>
-            <p className="text-gray-400">contact@meenaeyecare.com</p>
+            <p className="text-gray-400"> Kandivali east, Mumbai, Maharashtra 400101</p>
+            <p className="text-gray-400">trivedimanish2803@gmail.com</p>
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-4 text-center text-gray-500">

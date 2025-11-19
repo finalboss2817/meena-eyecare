@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { productService } from '../../services/productService';
 import { cartService } from '../../services/cartService';
 import { wishlistService } from '../../services/wishlistService';
-import type { Product, Category } from '../../types';
+import type { Product, Category, PrescriptionData } from '../../types';
 import { Icon } from '../../components/Icon';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 
@@ -19,6 +19,8 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showVirtualTryOn, setShowVirtualTryOn] = useState(false);
+  const [prescription, setPrescription] = useState<PrescriptionData | undefined>(undefined);
+  const [uploadError, setUploadError] = useState('');
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -51,6 +53,33 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(price);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setUploadError('File size too large (max 5MB)');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target && typeof event.target.result === 'string') {
+          setPrescription({
+            fileName: file.name,
+            data: event.target.result
+          });
+          setUploadError('');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePrescription = () => {
+    setPrescription(undefined);
+    setUploadError('');
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -67,7 +96,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
   }
 
   const handleAddToCart = () => {
-    cartService.addToCart(product.id, quantity);
+    cartService.addToCart(product.id, quantity, prescription);
     alert(`${quantity} x ${product.name} added to cart!`);
   };
 
@@ -108,13 +137,44 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
             <span className="text-sm text-gray-500">{product.stock} in stock</span>
           </div>
 
+           {/* Prescription Upload */}
+           <div className="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+             <h3 className="text-lg font-semibold mb-2 flex items-center">
+                <Icon name="education" className="w-5 h-5 mr-2 text-primary"/>
+                Upload Prescription
+             </h3>
+             {!prescription ? (
+               <div className="mt-2">
+                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-100 hover:border-primary transition-all">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg className="w-8 h-8 mb-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        <p className="mb-2 text-sm text-gray-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                        <p className="text-xs text-gray-500">PNG, JPG or PDF (MAX. 5MB)</p>
+                    </div>
+                    <input type="file" className="hidden" accept="image/*,.pdf" onChange={handleFileChange} />
+                 </label>
+                 {uploadError && <p className="text-red-500 text-xs mt-2">{uploadError}</p>}
+               </div>
+             ) : (
+               <div className="flex items-center justify-between bg-white p-3 rounded border mt-2">
+                 <div className="flex items-center">
+                    <svg className="w-8 h-8 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span className="text-sm font-medium truncate max-w-[200px]">{prescription.fileName}</span>
+                 </div>
+                 <button onClick={removePrescription} className="text-red-500 hover:text-red-700">
+                    <Icon name="trash" className="w-5 h-5"/>
+                 </button>
+               </div>
+             )}
+           </div>
+
           <div className="flex flex-col sm:flex-row gap-4">
-            <button onClick={handleAddToCart} className="flex-1 bg-accent text-white font-bold py-3 px-6 rounded-lg hover:bg-accent/90 transition-colors transform hover:scale-105">
+            <button onClick={handleAddToCart} className="flex-1 bg-accent text-white font-bold py-3 px-6 rounded-lg hover:bg-accent/90 transition-colors transform hover:scale-105 shadow-lg">
               Add to Cart
             </button>
             <button onClick={handleToggleWishlist} className="flex items-center justify-center bg-gray-200 text-dark font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors">
               <Icon name="wishlist" className={`w-6 h-6 mr-2 transition-colors ${isWishlisted ? 'text-red-500 fill-current' : ''}`} />
-              {isWishlisted ? 'In Wishlist' : 'Add to Wishlist'}
+              {isWishlisted ? 'In Wishlist' : 'Wishlist'}
             </button>
           </div>
           
@@ -122,22 +182,13 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
               <div className="mt-6 border-t pt-6">
                 <button 
                   onClick={() => onNavigate(`user/virtual-try-on/${product.id}`)}
-                  className="w-full bg-primary text-white font-bold py-4 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center space-x-2 text-lg transform hover:scale-105"
+                  className="w-full bg-primary text-white font-bold py-4 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center space-x-2 text-lg transform hover:scale-105 shadow-md"
                 >
                   <Icon name="eye" className="w-6 h-6" />
                   <span>Virtual Try-On</span>
                 </button>
               </div>
            )}
-
-           {/* Mock Prescription Upload */}
-           <div className="mt-6 border-t pt-6">
-             <h3 className="text-lg font-semibold mb-2">Have a Prescription?</h3>
-             <p className="text-sm text-gray-600 mb-3">You can upload it during checkout. For this prototype, just click the button to simulate the action.</p>
-             <button className="w-full border-2 border-dashed border-gray-400 text-gray-600 py-4 rounded-lg hover:bg-gray-100 hover:border-primary hover:text-primary transition-colors font-semibold">
-                Click to Mock Upload Prescription
-             </button>
-           </div>
         </div>
       </div>
     </div>

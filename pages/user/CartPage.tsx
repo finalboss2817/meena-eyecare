@@ -13,6 +13,7 @@ interface CartPageProps {
 type CartViewItem = {
   product: Product;
   quantity: number;
+  prescriptionFileName?: string;
 };
 
 export const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
@@ -27,9 +28,13 @@ export const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
     if (productIds.length > 0) {
         const products = await productService.getProductsByIds(productIds);
         const detailedItems: CartViewItem[] = items
-          .map(item => {
+          .map((item): CartViewItem | null => {
             const product = products.find(p => p.id === item.productId);
-            return product ? { product, quantity: item.quantity } : null;
+            return product ? { 
+                product, 
+                quantity: item.quantity,
+                prescriptionFileName: item.prescription?.fileName
+            } : null;
           })
           .filter((item): item is CartViewItem => item !== null);
         setCartItems(detailedItems);
@@ -80,12 +85,18 @@ export const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
             <ul className="divide-y divide-gray-200">
-              {cartItems.map(({ product, quantity }) => (
+              {cartItems.map(({ product, quantity, prescriptionFileName }) => (
                 <li key={product.id} className="flex flex-col sm:flex-row items-center py-6">
                   <img src={product.image_url} alt={product.name} className="w-28 h-28 object-cover rounded-md mb-4 sm:mb-0 shadow-sm"/>
-                  <div className="flex-1 sm:ml-6 text-center sm:text-left">
+                  <div className="flex-1 sm:ml-6 text-center sm:text-left w-full">
                     <h3 className="text-lg font-bold">{product.name}</h3>
                     <p className="text-sm text-gray-500">{product.brand}</p>
+                    {prescriptionFileName && (
+                        <div className="flex items-center justify-center sm:justify-start mt-1 text-xs text-green-600 bg-green-50 p-1 rounded w-fit">
+                            <Icon name="education" className="w-3 h-3 mr-1" />
+                            Rx: {prescriptionFileName}
+                        </div>
+                    )}
                     <p className="text-md font-bold text-primary mt-1">{formatCurrency(product.price)}</p>
                   </div>
                   <div className="flex items-center space-x-4 mt-4 sm:mt-0">
