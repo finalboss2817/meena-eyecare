@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { authService } from '../../services/authService';
+import { Icon } from '../../components/Icon';
 
 interface LoginPageProps {
   onNavigate: (path: string) => void;
@@ -11,6 +12,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
   const [mode, setMode] = useState<AuthMode>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
@@ -108,7 +110,22 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
                     </div>
                     <div>
                         <label>Password</label>
-                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="mt-1 input-style w-full" />
+                        <div className="relative">
+                          <input 
+                            type={showPassword ? "text" : "password"} 
+                            value={password} 
+                            onChange={e => setPassword(e.target.value)} 
+                            required 
+                            className="mt-1 input-style w-full pr-10" 
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 mt-1"
+                          >
+                            <Icon name="eye" className="h-5 w-5" />
+                          </button>
+                        </div>
                     </div>
                     <button type="submit" disabled={isLoading} className="w-full btn-primary">
                         {isLoading ? 'Signing In...' : 'Sign In'}

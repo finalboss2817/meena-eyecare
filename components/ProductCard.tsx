@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import type { Product } from '../types';
 import { wishlistService } from '../services/wishlistService';
 import { cartService } from '../services/cartService';
+import { authService } from '../services/authService';
 import { Icon } from './Icon';
 
 interface ProductCardProps {
@@ -22,14 +24,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onNavigate })
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [product.id]);
 
-  const handleToggleWishlist = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    wishlistService.toggleWishlist(product.id);
+  const checkAuth = async () => {
+    const session = await authService.getSession();
+    if (!session) {
+        // Direct redirect to signup without confirmation dialog
+        onNavigate('user/signup');
+        return false;
+    }
+    return true;
   };
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleToggleWishlist = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    cartService.addToCart(product.id);
+    if (await checkAuth()) {
+        wishlistService.toggleWishlist(product.id);
+    }
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (await checkAuth()) {
+        cartService.addToCart(product.id);
+        alert("Added to cart!");
+    }
   };
   
   const formatCurrency = (price: number) => {
@@ -54,7 +71,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onNavigate })
         <p className="text-2xl font-extrabold text-primary mt-2">{formatCurrency(product.price)}</p>
         <button 
           onClick={handleAddToCart}
-          className="w-full mt-4 bg-primary text-white py-2 rounded-lg font-semibold hover:bg-primary/90 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
+          className="w-full mt-4 bg-primary text-white py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-md">
           Add to Cart
         </button>
       </div>

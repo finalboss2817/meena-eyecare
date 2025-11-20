@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { productService } from '../../services/productService';
 import { cartService } from '../../services/cartService';
 import { wishlistService } from '../../services/wishlistService';
+import { authService } from '../../services/authService';
 import type { Product, Category, PrescriptionData } from '../../types';
 import { Icon } from '../../components/Icon';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
@@ -95,15 +96,36 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
     );
   }
 
-  const handleAddToCart = () => {
+  const checkAuth = async () => {
+    const session = await authService.getSession();
+    if (!session) {
+        // Direct redirect to signup without confirmation dialog
+        onNavigate('user/signup');
+        return false;
+    }
+    return true;
+  };
+
+  const handleAddToCart = async () => {
+    if (!(await checkAuth())) return;
+
     cartService.addToCart(product.id, quantity, prescription);
     const message = prescription 
         ? `${quantity} x ${product.name} with prescription added to cart!`
         : `${quantity} x ${product.name} added to cart!`;
     alert(message);
   };
+  
+  const handleBuyNow = async () => {
+     if (!(await checkAuth())) return;
+     
+     // Add to cart then go to checkout
+     cartService.addToCart(product.id, quantity, prescription);
+     onNavigate('user/checkout');
+  };
 
-  const handleToggleWishlist = () => {
+  const handleToggleWishlist = async () => {
+    if (!(await checkAuth())) return;
     wishlistService.toggleWishlist(product.id);
   };
   
@@ -173,13 +195,18 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
              )}
            </div>
 
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button onClick={handleAddToCart} className="flex-1 bg-accent text-white font-bold py-3 px-6 rounded-lg hover:bg-accent/90 transition-colors transform hover:scale-105 shadow-lg">
-              Add to Cart
-            </button>
-            <button onClick={handleToggleWishlist} className="flex items-center justify-center bg-gray-200 text-dark font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors">
+          <div className="flex flex-col gap-4">
+             <div className="flex gap-4">
+                <button onClick={handleAddToCart} className="flex-1 bg-white border-2 border-primary text-primary font-bold py-3 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors transform hover:scale-105 shadow-md">
+                Add to Cart
+                </button>
+                <button onClick={handleBuyNow} className="flex-1 bg-accent text-white font-bold py-3 px-6 rounded-lg hover:bg-accent/90 transition-colors transform hover:scale-105 shadow-lg">
+                Buy Now
+                </button>
+            </div>
+            <button onClick={handleToggleWishlist} className="w-full flex items-center justify-center bg-gray-200 text-dark font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors">
               <Icon name="wishlist" className={`w-6 h-6 mr-2 transition-colors ${isWishlisted ? 'text-red-500 fill-current' : ''}`} />
-              {isWishlisted ? 'In Wishlist' : 'Wishlist'}
+              {isWishlisted ? 'In Wishlist' : 'Add to Wishlist'}
             </button>
           </div>
           

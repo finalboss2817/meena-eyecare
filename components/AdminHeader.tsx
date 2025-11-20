@@ -8,7 +8,7 @@ interface AdminHeaderProps {
 }
 
 export const AdminHeader: React.FC<AdminHeaderProps> = ({ onNavigate, onLogout }) => {
-  const NavLink: React.FC<{ path: string; label: string; icon: 'dashboard' | 'products' | 'education' }> = ({ path, label, icon }) => (
+  const NavLink: React.FC<{ path: string; label: string; icon: 'dashboard' | 'products' | 'education' | 'cart' }> = ({ path, label, icon }) => (
     <a
       href={`#${path}`}
       onClick={(e) => { e.preventDefault(); onNavigate(path); }}
@@ -30,6 +30,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onNavigate, onLogout }
             <nav className="hidden md:flex items-center ml-10 space-x-4">
               <NavLink path="admin/dashboard" label="Dashboard" icon="dashboard" />
               <NavLink path="admin/products" label="Products" icon="products" />
+              <NavLink path="admin/orders" label="Orders" icon="cart" />
               <NavLink path="admin/education" label="Education" icon="education" />
             </nav>
           </div>

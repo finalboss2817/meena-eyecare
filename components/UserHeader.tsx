@@ -64,7 +64,8 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ onNavigate, session, pro
   
   const authLinks = session ? (
     <div className="flex items-center space-x-4">
-        <span className="hidden sm:inline text-sm text-gray-600">Hi, {displayName}</span>
+        <a href="#user/orders" onClick={(e) => handleNavClick(e, 'user/orders')} className="hidden sm:inline text-sm font-medium text-gray-600 hover:text-primary">My Orders</a>
+        <span className="hidden sm:inline text-sm text-gray-600">| Hi, {displayName}</span>
         {profile?.role === 'admin' && (
            <a href="#admin/dashboard" onClick={(e) => handleNavClick(e, 'admin/dashboard')} className="hidden sm:inline bg-secondary text-primary text-sm font-bold px-3 py-1 rounded-md hover:bg-secondary/90">
              Admin Panel
@@ -103,6 +104,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ onNavigate, session, pro
             ) : (
               <>
                 <span className="text-xl text-gray-600">Hi, {displayName}</span>
+                <NavLink path="user/orders" label="My Orders" isMobile />
                 {profile?.role === 'admin' && <NavLink path="admin/dashboard" label="Admin Panel" isMobile />}
                 <a href="#logout" onClick={handleLogout} className="text-2xl font-bold text-dark hover:text-primary transition-colors">Logout</a>
               </>

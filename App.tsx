@@ -12,11 +12,13 @@ import { WishlistPage } from './pages/user/WishlistPage';
 import { CheckoutPage } from './pages/user/CheckoutPage';
 import { EducationHubPage } from './pages/user/EducationHubPage';
 import { VirtualTryOnPage } from './pages/user/VirtualTryOnPage';
+import { OrdersPage } from './pages/user/OrdersPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminProductListPage } from './pages/admin/AdminProductListPage';
 import { AdminProductForm } from './pages/admin/AdminProductForm';
 import { AdminEducationHubPage } from './pages/admin/AdminEducationHubPage';
 import { AdminEducationForm } from './pages/admin/AdminEducationForm';
+import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
 import { LoginPage } from './pages/user/LoginPage';
 import { SignUpPage } from './pages/user/SignUpPage';
 import { CreateProfilePage } from './pages/user/CreateProfilePage';
@@ -49,7 +51,6 @@ const App: React.FC = () => {
 
     fetchSessionAndProfile();
 
-    // FIX: authService.onAuthStateChange returns the subscription object directly.
     const subscription = authService.onAuthStateChange(async (_event, session) => {
       setSession(session);
       if (session) {
@@ -82,7 +83,6 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     try {
         await authService.signOut();
-        // The onAuthStateChange listener will handle setting session and profile to null
         handleNavigate('user/home');
     } catch (error) {
         console.error("Error during logout:", error);
@@ -95,7 +95,6 @@ const App: React.FC = () => {
     const [area, page, ...params] = route.split('/');
     
     if (session && session.user.phone && profile && !profile.full_name && route !== 'user/create-profile') {
-        // Force redirect if a phone user hasn't created a profile yet.
         handleNavigate('user/create-profile');
         return <CreateProfilePage onProfileCreated={() => handleNavigate('user/home')} />;
     }
@@ -117,6 +116,7 @@ const App: React.FC = () => {
       switch (page) {
         case 'dashboard': return <AdminDashboardPage onNavigate={handleNavigate} />;
         case 'products': return <AdminProductListPage onNavigate={handleNavigate} />;
+        case 'orders': return <AdminOrdersPage onNavigate={handleNavigate} />;
         case 'product':
           if (params[0] === 'new') return <AdminProductForm onNavigate={handleNavigate} />;
           if (params[0] === 'edit' && params[1]) return <AdminProductForm productId={params[1]} onNavigate={handleNavigate} />;
@@ -139,6 +139,7 @@ const App: React.FC = () => {
         case 'user/cart': return <CartPage onNavigate={handleNavigate} />;
         case 'user/wishlist': return <WishlistPage onNavigate={handleNavigate} />;
         case 'user/checkout': return <CheckoutPage onNavigate={handleNavigate} />;
+        case 'user/orders': return <OrdersPage onNavigate={handleNavigate} />;
         case 'user/education-hub': return <EducationHubPage />;
         case 'user/virtual-try-on': return <VirtualTryOnPage productId={params[0]} onNavigate={handleNavigate} />;
         case 'user/login': return <LoginPage onNavigate={handleNavigate} />;

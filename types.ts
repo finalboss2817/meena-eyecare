@@ -63,3 +63,28 @@ export interface TryOnState {
   frameScale: number;
   frameRotation: number;
 }
+
+export type OrderStatus = 'pending_verification' | 'approved' | 'rejected' | 'processing' | 'delivered';
+export type PaymentMethod = 'cod' | 'advance' | 'instant';
+
+export interface Order {
+  id: string;
+  user_id: string;
+  full_name: string;
+  email: string;
+  address: string;
+  total_amount: number;
+  payment_method: PaymentMethod;
+  payment_proof_url?: string; // Base64 or URL
+  status: OrderStatus;
+  created_at: string;
+  items: OrderItem[];
+}
+
+export interface OrderItem {
+  product_id: string;
+  product_name: string;
+  quantity: number;
+  price: number;
+  prescription_data?: string;
+}

@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { authService } from '../../services/authService';
+import { Icon } from '../../components/Icon';
 
 interface SignUpPageProps {
   onNavigate: (path: string) => void;
@@ -10,6 +10,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -91,7 +92,25 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-            <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="mt-1 input-style w-full" placeholder="••••••••" />
+            <div className="relative">
+              <input 
+                id="password" 
+                type={showPassword ? "text" : "password"} 
+                value={password} 
+                onChange={e => setPassword(e.target.value)} 
+                required 
+                minLength={6} 
+                className="mt-1 input-style w-full pr-10" 
+                placeholder="••••••••" 
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 mt-1"
+              >
+                <Icon name="eye" className="h-5 w-5" />
+              </button>
+            </div>
           </div>
           
           {error && <div className={`border px-4 py-3 rounded relative text-sm ${error.includes('created') ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-600'}`} role="alert">{error}</div>}
