@@ -83,6 +83,9 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     try {
         await authService.signOut();
+        // Force update state immediately to ensure UI reflects logout
+        setSession(null);
+        setProfile(null);
         handleNavigate('user/home');
     } catch (error) {
         console.error("Error during logout:", error);
@@ -157,7 +160,7 @@ const App: React.FC = () => {
       {isAdminView ? (
         <AdminHeader onNavigate={handleNavigate} onLogout={handleLogout} />
       ) : (
-        <UserHeader onNavigate={handleNavigate} session={session} profile={profile} />
+        <UserHeader onNavigate={handleNavigate} session={session} profile={profile} onLogout={handleLogout} />
       )}
       <main className="flex-grow">
         {renderContent()}

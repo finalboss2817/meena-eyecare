@@ -2,18 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import { cartService } from '../services/cartService';
 import { wishlistService } from '../services/wishlistService';
-import { authService } from '../services/authService';
 import { Icon } from './Icon';
 import type { Session } from '@supabase/supabase-js';
 import type { Profile } from '../types';
 
 interface UserHeaderProps {
   onNavigate: (page: string) => void;
+  onLogout: () => void;
   session: Session | null;
   profile: Profile | null;
 }
 
-export const UserHeader: React.FC<UserHeaderProps> = ({ onNavigate, session, profile }) => {
+export const UserHeader: React.FC<UserHeaderProps> = ({ onNavigate, onLogout, session, profile }) => {
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,16 +37,10 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ onNavigate, session, pro
     setIsMenuOpen(false);
   };
   
-  const handleLogout = async (e: React.MouseEvent) => {
+  const handleLogoutClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    try {
-      await authService.signOut();
-      onNavigate('user/home');
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
-      setIsMenuOpen(false);
-    }
+    onLogout();
+    setIsMenuOpen(false);
   };
 
   const NavLink: React.FC<{path: string, label: string, isMobile?: boolean}> = ({ path, label, isMobile = false }) => (
@@ -71,7 +65,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ onNavigate, session, pro
              Admin Panel
            </a>
         )}
-        <a href="#logout" onClick={handleLogout} className="text-dark hover:text-primary transition-colors" title="Logout">
+        <a href="#logout" onClick={handleLogoutClick} className="text-dark hover:text-primary transition-colors" title="Logout">
             <Icon name="logout" />
         </a>
     </div>
@@ -106,7 +100,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({ onNavigate, session, pro
                 <span className="text-xl text-gray-600">Hi, {displayName}</span>
                 <NavLink path="user/orders" label="My Orders" isMobile />
                 {profile?.role === 'admin' && <NavLink path="admin/dashboard" label="Admin Panel" isMobile />}
-                <a href="#logout" onClick={handleLogout} className="text-2xl font-bold text-dark hover:text-primary transition-colors">Logout</a>
+                <a href="#logout" onClick={handleLogoutClick} className="text-2xl font-bold text-dark hover:text-primary transition-colors">Logout</a>
               </>
             )}
         </nav>
